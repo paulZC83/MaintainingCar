@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MaintainingCar</string>
+    <string name="app_name_ch">养车记录</string>
+    <string name="in_and_ex_card">收支详情</string>
+    <string name="in_and_ex_add">收支登记</string>
+    <string name="in_and_ex_count">收支统计</string>
+    <string name="in_and_ex_list">收支流水</string>
+    <string name="autograph">汽车是件消耗品，我想尽力做到收支平衡</string>
+    <string name="user">Paul</string>
+</resources>
