@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="array_type">
+        <item>收入</item>
+        <item>支出</item>
+    </string-array>
+    <string-array name="in_type">
+        <item>滴答拼车</item>
+        <item>顺风车</item>
+    </string-array>
+    <string-array name="ex_type">
+        <item>加油</item>
+        <item>停车</item>
+        <item>过路</item>
+        <item>保养</item>
+        <item>维修</item>
+    </string-array>
+</resources>

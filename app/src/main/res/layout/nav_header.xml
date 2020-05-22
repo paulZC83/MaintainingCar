@@ -9,7 +9,7 @@
         android:id="@+id/iconImage"
         android:layout_width="90dp"
         android:layout_height="90dp"
-        android:src="@drawable/ic_launcher_background"
+        android:src="@drawable/car"
         android:layout_centerInParent="true"/>
     <TextView
         android:id="@+id/aotograph"
@@ -26,5 +26,5 @@
         android:layout_above="@id/aotograph"
         android:text="@string/user"
         android:textColor="#FFF"
-        android:textSize="14sp"/>
+        android:textSize="18sp"/>
 </RelativeLayout>

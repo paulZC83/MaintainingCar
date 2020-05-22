@@ -6,5 +6,11 @@
     <string name="in_and_ex_count">收支统计</string>
     <string name="in_and_ex_list">收支流水</string>
     <string name="autograph">汽车是件消耗品，我想尽力做到收支平衡</string>
-    <string name="user">Paul</string>
+    <string name="user">Paul☞曾</string>
+    <string name="in">收入金额：</string>
+    <string name="ex">支出金额：</string>
+    <string name="ex_date">支出日期：</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
