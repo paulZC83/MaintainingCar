@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
                 val addFragment = supportFragmentManager.findFragmentByTag(tagAdd) as AddFragment
                 addFragment.insert()
                 Toast.makeText(this, "提交成功！",Toast.LENGTH_SHORT).show()
+                changeFragment(R.id.inAndExCard)
             }.show()
         }
 
