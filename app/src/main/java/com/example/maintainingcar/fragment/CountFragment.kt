@@ -106,7 +106,7 @@ class CountFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
                 allInMoney = carDao.queryInfoFromType(0)
             }
 
-            val count = jyMoney.plus(tcMoney).plus(glMoney).plus(byMoney).plus(wxMoney).plus(ddMoney).plus(sfcMoney)
+            val count = jyMoney.plus(tcMoney).plus(glMoney).plus(byMoney).plus(wxMoney).plus(ddMoney).plus(sfcMoney).plus(allInMoney)
             if (jyMoney > 0) {
                 jyPercent = String.format("%.3f", jyMoney.div(count.toFloat())).toFloat()
             }
