@@ -112,10 +112,10 @@ class CardFragment : Fragment() {
             Glide.with(context).load(list[position].imageId).into(holder.image)
             var strMoney = ""
             var money = (list[position].inMoney - list[position].exMoney).roundTo1DecimalPlaces()
-            if (money > 0) {
-                strMoney = "+$money"
+            strMoney = if (money > 0) {
+                "+$money"
             } else{
-                strMoney = "$money"
+                "$money"
             }
             holder.money.text = strMoney
             holder.exDate.text = CarApplication.context.getString(R.string.ex_date) + list[position].exDate

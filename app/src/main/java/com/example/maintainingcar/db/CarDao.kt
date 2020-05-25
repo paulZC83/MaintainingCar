@@ -1,9 +1,6 @@
 package com.example.maintainingcar.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 
 @Dao
 interface CarDao {
@@ -12,6 +9,9 @@ interface CarDao {
 
     @Update
     fun updateInExInfo(newInfo: InExInfo)
+
+    @Delete
+    fun deleteInExInfo(inExInfo: InExInfo)
 
     @Query("select * from InExInfo order by date Desc")
     fun loadAllInfo():List<InExInfo>

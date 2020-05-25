@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +21,8 @@ import com.example.maintainingcar.R
 import com.example.maintainingcar.db.AppDatabase
 import com.example.maintainingcar.db.CarDao
 import com.example.maintainingcar.db.InExInfo
+import com.example.maintainingcar.kt.dp2px
+import com.yanzhenjie.recyclerview.*
 import kotlinx.android.synthetic.main.fragment_list.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,6 +35,29 @@ class RecordListFragment : Fragment(), RadioGroup.OnCheckedChangeListener {
     private lateinit var adapter: ListAdapter
     private var inExList = ArrayList<InExInfo>()
     private lateinit var handler :CarHandler
+    private var currentCheckBox :Int = R.id.rb_All
+    private val swipeMenueCreator = SwipeMenuCreator{ leftMenu: SwipeMenu, rightMenu: SwipeMenu, i: Int ->
+        val deleteItem = SwipeMenuItem(activity)
+        deleteItem.text = resources.getString(R.string.delete)
+        deleteItem.setBackgroundColor(ContextCompat.getColor(CarApplication.context, android.R.color.holo_red_light))
+        deleteItem.textSize = 18
+        deleteItem.setTextColor(ContextCompat.getColor(CarApplication.context,android.R.color.white))
+        deleteItem.width = CarApplication.context.dp2px(80f)
+        deleteItem.height = CarApplication.context.dp2px(60f)
+        rightMenu.addMenuItem(deleteItem)
+    }
+    private val itemMenuClickListener = OnItemMenuClickListener{ menuBridge: SwipeMenuBridge, adapterPosition:Int ->
+        // 任何操作必须先关闭菜单，否则可能出现Item菜单打开状态错乱
+        menuBridge.closeMenu()
+
+        // 左侧还是右侧菜单
+        val direction = menuBridge.direction
+        // 菜单item中的position
+        val position = menuBridge.position
+        Log.d(listTag, "direction is $direction----position is $position")
+
+        deleteRecord(adapterPosition)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         carDao = AppDatabase.getDatabase(CarApplication.context).carDao()
@@ -50,6 +76,10 @@ class RecordListFragment : Fragment(), RadioGroup.OnCheckedChangeListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         rg_view.setOnCheckedChangeListener(this)
+
+        rvRecord.setSwipeMenuCreator(swipeMenueCreator)
+        rvRecord.setOnItemMenuClickListener(itemMenuClickListener)
+
         val layoutManager =LinearLayoutManager(CarApplication.context)
         rvRecord.layoutManager = layoutManager
         rvRecord.adapter = adapter
@@ -60,6 +90,7 @@ class RecordListFragment : Fragment(), RadioGroup.OnCheckedChangeListener {
     }
 
     private fun getData(checkedId: Int) {
+        currentCheckBox = checkedId
         inExList.clear()
         thread {
             var list : List<InExInfo>?= null
@@ -152,6 +183,13 @@ class RecordListFragment : Fragment(), RadioGroup.OnCheckedChangeListener {
                 Log.d(listTag, "select in")
                 getData(R.id.rb_in)
             }
+        }
+    }
+
+    private fun deleteRecord(position: Int){
+        thread {
+            carDao.deleteInExInfo(inExList[position])
+            getData(currentCheckBox)
         }
     }
 

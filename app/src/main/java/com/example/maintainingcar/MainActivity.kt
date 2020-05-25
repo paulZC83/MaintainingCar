@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
                 val addFragment = supportFragmentManager.findFragmentByTag(tagAdd) as AddFragment
                 addFragment.insert()
                 Toast.makeText(this, "提交成功！",Toast.LENGTH_SHORT).show()
+                naviView.setCheckedItem(R.id.inAndExCard)
                 changeFragment(R.id.inAndExCard)
             }.show()
         }

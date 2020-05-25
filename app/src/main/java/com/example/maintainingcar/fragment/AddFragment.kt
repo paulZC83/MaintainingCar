@@ -123,7 +123,7 @@ class AddFragment : Fragment(), DatePickerDialog.OnDateSetListener , TimePickerD
         resetPageData()
     }
 
-    fun resetPageData(){
+    private fun resetPageData(){
         sp_type.setSelection(0)
         sp_ex_type.setSelection(0)
         sp_in_type.setSelection(0)

@@ -67,7 +67,7 @@
 
 
 
-        <androidx.recyclerview.widget.RecyclerView
+        <com.yanzhenjie.recyclerview.SwipeRecyclerView
             android:id="@+id/rvRecord"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
