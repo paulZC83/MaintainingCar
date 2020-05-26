@@ -13,7 +13,7 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.maintainingcar.CarApplication
@@ -80,7 +80,7 @@ class RecordListFragment : Fragment(), RadioGroup.OnCheckedChangeListener {
         rvRecord.setSwipeMenuCreator(swipeMenueCreator)
         rvRecord.setOnItemMenuClickListener(itemMenuClickListener)
 
-        val layoutManager =LinearLayoutManager(CarApplication.context)
+        val layoutManager =GridLayoutManager(CarApplication.context, 2)
         rvRecord.layoutManager = layoutManager
         rvRecord.adapter = adapter
         getData(R.id.rb_All)

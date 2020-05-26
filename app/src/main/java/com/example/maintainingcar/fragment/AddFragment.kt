@@ -171,6 +171,9 @@ class AddFragment : Fragment(), DatePickerDialog.OnDateSetListener , TimePickerD
         override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
             Log.d(addTag, "In select position is $position")
             inType = position
+            if (inType == 1) {
+                etIn.setText("30")
+            }
         }
     }
 }
