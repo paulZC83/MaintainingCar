@@ -20,6 +20,7 @@ import com.example.maintainingcar.db.AppDatabase
 import com.example.maintainingcar.db.CarDao
 import com.example.maintainingcar.entity.CardInfo
 import com.example.maintainingcar.utils.roundTo1DecimalPlaces
+import com.example.maintainingcar.view.DetailDialog
 import kotlinx.android.synthetic.main.fragment_card.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,7 +32,7 @@ class CardFragment : Fragment() {
     private lateinit var carDao: CarDao
     private lateinit var adapter: CardAdapter
     private var cardInfoList = ArrayList<CardInfo>()
-    private lateinit var handler :CarHandler
+    lateinit var handler :CarHandler
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         carDao = AppDatabase.getDatabase(CarApplication.context).carDao()
@@ -67,7 +68,7 @@ class CardFragment : Fragment() {
                     imageId = R.drawable.get_money
                 }
                 val format = SimpleDateFormat("yyyy/MM/dd")
-                val cardInfo = CardInfo(imageId, format.format(Date(inExInfo.date)), inExInfo.money, inMoney)
+                val cardInfo = CardInfo(imageId, format.format(Date(inExInfo.date)), inExInfo.money, inMoney, inExInfo.cardIndex)
                 cardInfoList.add(cardInfo)
             }
             val message = Message.obtain()
@@ -82,11 +83,16 @@ class CardFragment : Fragment() {
             if (msg.what == 1) {
                 // 刷新界面
                 adapter.reFresh(cardInfoList)
+            } else if (msg.what == 2) {
+                val title = msg.data.getString("TITLE")?:"不足为道"
+                val msg = msg.data.getString("MSG")?:"都没带人，咋整@@"
+                DetailDialog.Builder(activity!!).setTitle(title).setMsg(msg).build().show()
             }
         }
     }
 
-    class CardAdapter(val context: Context, var list:List<CardInfo>):RecyclerView.Adapter<CardAdapter.MyViewHolder>(){
+    inner class CardAdapter(val context: Context, var list:List<CardInfo>):RecyclerView.Adapter<CardAdapter.MyViewHolder>(){
+        val dao = AppDatabase.getDatabase(CarApplication.context).carDao()
         fun reFresh(infos:List<CardInfo>){
             list = infos
             notifyDataSetChanged()
@@ -101,7 +107,53 @@ class CardFragment : Fragment() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
             val view = LayoutInflater.from(context).inflate(R.layout.item_card_layout, parent, false)
-            return MyViewHolder(view)
+            val viewHolder = MyViewHolder(view)
+            viewHolder.itemView.setOnClickListener {
+                val position = viewHolder.adapterPosition
+                thread {
+                    Log.d("Car_Card","list is ${list.toString()}, position is $position ")
+                    val cardIndex = list[position].cardIndex
+                    Log.d("Car_Card","cardIndex is $cardIndex")
+                    val inList = dao.queryDetail(0, cardIndex)
+                    var countIn = inList.size
+                    var countDD = 0
+                    var countSFC = 0
+                    var moneyDD = 0.0
+                    var moneySFC = 0.0
+                    for (item in inList) {
+                        if (item.subType == 0) {
+                            moneyDD += item.money
+                            countDD++
+                        }
+                        if (item.subType == 1) {
+                            moneySFC += item.money
+                            countSFC++
+                        }
+                    }
+                    val showMoney = if (moneyDD > moneySFC)  {
+                        "滴答$countDD 笔，共$moneyDD 元"
+                    } else {
+                        "顺风车$countSFC 笔，共$moneySFC 元"
+                    }
+
+                    var msg = "都没带人，咋整@@"
+                    var titile = "不足为道"
+                    if (moneyDD > 0.0 || moneySFC > 0.0){
+                        msg = "总共收入$countIn 笔，总计 ${list[position].inMoney}元，其中$showMoney"
+                    }
+                    if (list[position].exMoney > list[position].inMoney) {
+                        titile = "革命尚未成功，同志仍需努力"
+                    } else {
+                        titile ="成绩感人！"
+                    }
+                    val message = Message.obtain()
+                    message.what = 2
+                    message.data.putString("TITLE", titile)
+                    message.data.putString("MSG", msg)
+                    handler.sendMessage(message)
+                }
+            }
+            return viewHolder
         }
 
         override fun getItemCount(): Int {

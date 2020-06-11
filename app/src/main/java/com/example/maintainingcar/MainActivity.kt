@@ -1,12 +1,15 @@
 package com.example.maintainingcar
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Message
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import com.example.maintainingcar.`in`.OnAddListener
 import com.example.maintainingcar.fragment.AddFragment
 import com.example.maintainingcar.fragment.CardFragment
 import com.example.maintainingcar.fragment.CountFragment
@@ -19,6 +22,21 @@ class MainActivity : AppCompatActivity() {
     private val tagCard = "TAG_CARD"
     private val tagList = "TAG_LIST"
     private val countList = "TAG_Count"
+    private val msgAddSuccess = 1
+    private val msgAddFailed = 2
+
+    val mHandler = object : Handler(){
+        override fun handleMessage(msg: Message) {
+            super.handleMessage(msg)
+            if (msg.what == msgAddSuccess) {
+                Toast.makeText(CarApplication.context, "提交成功！", Toast.LENGTH_LONG).show()
+                naviView.setCheckedItem(R.id.inAndExCard)
+                changeFragment(R.id.inAndExCard)
+            } else if (msg.what == msgAddFailed) {
+                Toast.makeText(CarApplication.context, "提交失败！", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -42,10 +60,20 @@ class MainActivity : AppCompatActivity() {
             v ->
             Snackbar.make(v, "确认提交？", Snackbar.LENGTH_LONG).setAction("提交") {
                 val addFragment = supportFragmentManager.findFragmentByTag(tagAdd) as AddFragment
-                addFragment.insert()
-                Toast.makeText(this, "提交成功！",Toast.LENGTH_SHORT).show()
-                naviView.setCheckedItem(R.id.inAndExCard)
-                changeFragment(R.id.inAndExCard)
+                addFragment.insert(object:OnAddListener{
+                    override fun onSuccess() {
+                        val msg = Message.obtain()
+                        msg.what = msgAddSuccess
+                        mHandler.sendMessage(msg)
+                    }
+
+                    override fun onFailed() {
+                        val msg = Message.obtain()
+                        msg.what = msgAddFailed
+                        mHandler.sendMessage(msg)
+                    }
+                })
+
             }.show()
         }
 

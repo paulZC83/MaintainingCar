@@ -35,4 +35,8 @@ interface CarDao {
     @Query("select sum(money) from InExInfo  where type = :type")
     fun queryInfoFromType(type:Int):Double
 
+    @Query("select * from InExInfo  where type = :type and cardIndex = :cardIndex order by id Desc")
+    fun queryDetail(type:Int,  cardIndex:Int):List<InExInfo>
+
+
 }

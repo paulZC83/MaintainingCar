@@ -13,6 +13,7 @@ import android.widget.TimePicker
 import androidx.fragment.app.Fragment
 import com.example.maintainingcar.CarApplication
 import com.example.maintainingcar.R
+import com.example.maintainingcar.`in`.OnAddListener
 import com.example.maintainingcar.db.AppDatabase
 import com.example.maintainingcar.db.CarDao
 import com.example.maintainingcar.db.InExInfo
@@ -98,29 +99,40 @@ class AddFragment : Fragment(), DatePickerDialog.OnDateSetListener , TimePickerD
         tvTime.text = "$hourOfDay:$minute"
     }
 
-    fun insert() {
-        var subType = 0
-        var money = 0.0
-        if (type == 0) {
-            subType = inType
-            money = etIn.text.toString().toDouble()
-        } else {
-            subType = exType
-            money = etEx.text.toString().toDouble()
-        }
-        val format = SimpleDateFormat("yyyy/MM/dd HH:mm")
-        val date = format.parse("${tvDate.text.toString()} ${tvTime.text.toString()}").time
-        thread {
-            var cardIndex = carDao.queryMaxCardIndex()
-            Log.d(addTag, "maxIndex = $cardIndex")
-            if (type == 1 && subType == 0) {
-                //加油
-                ++cardIndex
+    fun insert(listener:OnAddListener) {
+        try {
+            var subType = 0
+            var money = 0.0
+            if (type == 0) {
+                subType = inType
+                money = etIn.text.toString().toDouble()
+            } else {
+                subType = exType
+                money = etEx.text.toString().toDouble()
             }
-            val inExInfo = InExInfo(type, subType, money, date, cardIndex)
-            carDao.insertInExInfo(inExInfo)
+            val format = SimpleDateFormat("yyyy/MM/dd HH:mm")
+            val date = format.parse("${tvDate.text.toString()} ${tvTime.text.toString()}").time
+            thread {
+                var cardIndex = carDao.queryMaxCardIndex()
+                Log.d(addTag, "maxIndex = $cardIndex")
+                if (type == 1 && subType == 0) {
+                    //加油
+                    ++cardIndex
+                }
+                val inExInfo = InExInfo(type, subType, money, date, cardIndex)
+                val index = carDao.insertInExInfo(inExInfo)
+                Log.d(addTag, "insert index = $index")
+                if (index > 0) {
+                    listener.onSuccess()
+                } else {
+                    listener.onFailed()
+                }
+            }
+            resetPageData()
+        } catch (e:Exception) {
+            e.printStackTrace()
+            listener.onFailed()
         }
-        resetPageData()
     }
 
     private fun resetPageData(){
