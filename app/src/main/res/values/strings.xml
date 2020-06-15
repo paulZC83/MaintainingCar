@@ -12,6 +12,16 @@
     <string name="ex_date">加油日期：</string>
     <string name="delete">删除</string>
 
+    <string name="count_jy">加油</string>
+    <string name="count_tc">停车</string>
+    <string name="count_gl">过路</string>
+    <string name="count_by">保养</string>
+    <string name="count_wx">维修</string>
+    <string name="count_wz">违章</string>
+    <string name="count_dd">滴答</string>
+    <string name="count_sfc">顺风车</string>
+    <string name="count_sr">收入</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

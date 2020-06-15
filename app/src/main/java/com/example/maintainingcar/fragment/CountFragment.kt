@@ -2,6 +2,7 @@ package com.example.maintainingcar.fragment
 
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Message
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -12,11 +13,15 @@ import com.example.maintainingcar.CarApplication
 import com.example.maintainingcar.R
 import com.example.maintainingcar.db.AppDatabase
 import com.example.maintainingcar.db.CarDao
+import com.example.maintainingcar.view.DialogHandler
 import com.github.mikephil.charting.components.Description
+import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import kotlinx.android.synthetic.main.fragment_count.*
 import kotlin.concurrent.thread
 
@@ -28,13 +33,16 @@ class CountFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
     private var glChecked = false
     private var byChecked = false
     private var wxChecked = false
+    private var wzChecked = false
     private var ddChecked = false
     private var sfcChecked = false
     private var allInChecked = false
+    lateinit var dialogHandler:DialogHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         carDao = AppDatabase.getDatabase(CarApplication.context).carDao()
+        dialogHandler = DialogHandler(activity!!)
     }
 
     override fun onCreateView(
@@ -56,6 +64,7 @@ class CountFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
         cb_gl.setOnCheckedChangeListener(this)
         cb_by.setOnCheckedChangeListener(this)
         cb_wx.setOnCheckedChangeListener(this)
+        cb_wz.setOnCheckedChangeListener(this)
         cb_dd.setOnCheckedChangeListener(this)
         cb_sfc.setOnCheckedChangeListener(this)
         cb_all_in.setOnCheckedChangeListener(this)
@@ -67,15 +76,20 @@ class CountFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
         var glMoney = 0.0
         var byMoney = 0.0
         var wxMoney = 0.0
+        var wzMoney = 0.0
         var ddMoney = 0.0
         var sfcMoney = 0.0
         var allInMoney = 0.0
+
+        var allSRMoney = 0.0
+        var allZCMoney = 0.0
 
         var jyPercent = 0f
         var tcPercent = 0f
         var glPercent = 0f
         var byPercent = 0f
         var wxPercent = 0f
+        var wzPercent = 0f
         var ddPercent = 0f
         var sfcPercent = 0f
         var allInPercent = 0f
@@ -96,6 +110,9 @@ class CountFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
             if (wxChecked) {
                 wxMoney = carDao.queryInfo(1, 4)
             }
+            if (wzChecked) {
+                wzMoney = carDao.queryInfo(1, 5)
+            }
             if (ddChecked) {
                 ddMoney = carDao.queryInfo(0, 0)
             }
@@ -105,8 +122,10 @@ class CountFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
             if (allInChecked) {
                 allInMoney = carDao.queryInfoFromType(0)
             }
+            allSRMoney = carDao.queryInfoFromType(0)
+            allZCMoney = carDao.queryInfoFromType(1)
 
-            val count = jyMoney.plus(tcMoney).plus(glMoney).plus(byMoney).plus(wxMoney).plus(ddMoney).plus(sfcMoney).plus(allInMoney)
+            val count = jyMoney.plus(tcMoney).plus(glMoney).plus(byMoney).plus(wxMoney).plus(wzMoney).plus(ddMoney).plus(sfcMoney).plus(allInMoney)
             if (jyMoney > 0) {
                 jyPercent = String.format("%.3f", jyMoney.div(count.toFloat())).toFloat()
             }
@@ -122,6 +141,9 @@ class CountFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
             if (wxMoney > 0) {
                 wxPercent = String.format("%.3f", wxMoney.div(count.toFloat())).toFloat()
             }
+            if (wzMoney > 0) {
+                wzPercent = String.format("%.3f", wzMoney.div(count.toFloat())).toFloat()
+            }
             if (ddMoney > 0) {
                 ddPercent = String.format("%.3f", ddMoney.div(count.toFloat())).toFloat()
             }
@@ -131,14 +153,15 @@ class CountFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
             if (allInMoney > 0) {
                 allInPercent = String.format("%.3f", allInMoney.div(count.toFloat())).toFloat()
             }
-            val pieEntry1 = PieEntry(jyPercent.times(100),"加油")
-            val pieEntry2 = PieEntry(tcPercent.times(100),"停车")
-            val pieEntry3 = PieEntry(glPercent.times(100),"过路")
-            val pieEntry4 = PieEntry(byPercent.times(100),"保养")
-            val pieEntry5 = PieEntry(wxPercent.times(100),"维修")
-            val pieEntry6 = PieEntry(ddPercent.times(100),"滴答")
-            val pieEntry7 = PieEntry(sfcPercent.times(100),"顺风车")
-            val pieEntry8 = PieEntry(allInPercent.times(100),"收入")
+            val pieEntry1 = PieEntry(jyPercent.times(100),getString(R.string.count_jy))
+            val pieEntry2 = PieEntry(tcPercent.times(100),getString(R.string.count_tc))
+            val pieEntry3 = PieEntry(glPercent.times(100),getString(R.string.count_gl))
+            val pieEntry4 = PieEntry(byPercent.times(100),getString(R.string.count_by))
+            val pieEntry5 = PieEntry(wxPercent.times(100),getString(R.string.count_wx))
+            val pieEntry9 = PieEntry(wzPercent.times(100),getString(R.string.count_wz))
+            val pieEntry6 = PieEntry(ddPercent.times(100),getString(R.string.count_dd))
+            val pieEntry7 = PieEntry(sfcPercent.times(100),getString(R.string.count_sfc))
+            val pieEntry8 = PieEntry(allInPercent.times(100),getString(R.string.count_sr))
 
             val list = ArrayList<PieEntry>()
             if (jyMoney > 0) {
@@ -155,6 +178,9 @@ class CountFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
             }
             if (wxMoney > 0) {
                 list.add(pieEntry5)
+            }
+            if (wzMoney > 0) {
+                list.add(pieEntry9)
             }
             if (ddMoney > 0) {
                 list.add(pieEntry6)
@@ -185,6 +211,9 @@ class CountFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
             }
             if (wxMoney > 0) {
                 pieDataSet.colors.add(Color.parseColor("#B30FCF"))
+            }
+            if (wzMoney > 0) {
+                pieDataSet.colors.add(Color.parseColor("#0000F0"))
             }
             if (ddMoney > 0) {
                 pieDataSet.colors.add(Color.parseColor("#ff7c7c"))
@@ -227,6 +256,63 @@ class CountFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
             pieChart.setTransparentCircleAlpha(0)
 
             pieChart.setDrawEntryLabels(true)
+            pieChart.setOnChartValueSelectedListener(object :OnChartValueSelectedListener{
+                override fun onNothingSelected() {
+                    Log.d(countTag, "onNothingSelected")
+                }
+
+                override fun onValueSelected(e: Entry?, h: Highlight?) {
+                    val entry = e as PieEntry
+                    Log.d(countTag, "onValueSelected...h=$h....e=${entry.label}")
+                    val zcMoney = String.format("%.3f", allZCMoney).toFloat()
+                    val srMoney = String.format("%.3f", allSRMoney).toFloat()
+                    var type = "未知项"
+                    val text = when(entry.label) {
+                        getString(R.string.count_jy) -> {
+                            type = "${getString(R.string.count_jy)}：$jyMoney 元"
+                            "总支出：$zcMoney 元"
+                        }
+                        getString(R.string.count_tc) -> {
+                            type = "${getString(R.string.count_tc)}：$tcMoney 元"
+                            "总支出：$zcMoney 元"
+                        }
+                        getString(R.string.count_gl) -> {
+                            type = "${getString(R.string.count_gl)}：$glMoney 元"
+                            "总支出：$zcMoney 元"
+                        }
+                        getString(R.string.count_by) -> {
+                            type = "${getString(R.string.count_by)}：$byMoney 元"
+                            "总支出：$zcMoney 元"
+                        }
+                        getString(R.string.count_wx) -> {
+                            type = "${getString(R.string.count_wx)}：$wxMoney 元"
+                            "总支出：$zcMoney 元"
+                        }
+                        getString(R.string.count_wz) -> {
+                            type = "${getString(R.string.count_wz)}：$wzMoney 元"
+                            "总支出：$zcMoney 元"
+                        }
+                        getString(R.string.count_dd) -> {
+                            type = "${getString(R.string.count_dd)}：$ddMoney 元"
+                            "总收入：$srMoney 元"
+                        }
+                        getString(R.string.count_sfc) -> {
+                            type = "${getString(R.string.count_sfc)}：$sfcMoney 元"
+                            "总收入：$srMoney 元"
+                        }
+                        getString(R.string.count_sr) -> {
+                            type = "${getString(R.string.count_sr)}：$srMoney 元"
+                            "总收入：$srMoney 元"
+                        }
+                        else -> "未知数据"
+                    }
+                    val message = Message.obtain()
+                    message.data.putString("TITLE", type)
+                    message.data.putString("MSG", text)
+                    dialogHandler.sendMessage(message)
+                }
+
+            })
 
             pieChart.invalidate()
         }
@@ -274,6 +360,14 @@ class CountFragment : Fragment(), CompoundButton.OnCheckedChangeListener {
                         true
                     } else {
                         Log.d(countTag, "维修unChecked")
+                        false
+                    }
+                R.id.cb_wz ->
+                    wzChecked = if (isChecked) {
+                        Log.d(countTag, "违章checked")
+                        true
+                    } else {
+                        Log.d(countTag, "违章unChecked")
                         false
                     }
                 R.id.cb_dd ->

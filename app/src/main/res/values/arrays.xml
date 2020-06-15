@@ -14,5 +14,6 @@
         <item>过路</item>
         <item>保养</item>
         <item>维修</item>
+        <item>违章</item>
     </string-array>
 </resources>

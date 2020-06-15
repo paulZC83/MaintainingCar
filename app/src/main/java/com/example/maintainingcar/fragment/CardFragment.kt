@@ -20,7 +20,7 @@ import com.example.maintainingcar.db.AppDatabase
 import com.example.maintainingcar.db.CarDao
 import com.example.maintainingcar.entity.CardInfo
 import com.example.maintainingcar.utils.roundTo1DecimalPlaces
-import com.example.maintainingcar.view.DetailDialog
+import com.example.maintainingcar.view.DialogHandler
 import kotlinx.android.synthetic.main.fragment_card.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,11 +33,13 @@ class CardFragment : Fragment() {
     private lateinit var adapter: CardAdapter
     private var cardInfoList = ArrayList<CardInfo>()
     lateinit var handler :CarHandler
+    lateinit var dialogHandler:DialogHandler
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         carDao = AppDatabase.getDatabase(CarApplication.context).carDao()
         adapter = CardAdapter(CarApplication.context, ArrayList<CardInfo>())
         handler = CarHandler()
+        dialogHandler = DialogHandler(activity!!)
     }
 
     override fun onCreateView(
@@ -83,10 +85,6 @@ class CardFragment : Fragment() {
             if (msg.what == 1) {
                 // 刷新界面
                 adapter.reFresh(cardInfoList)
-            } else if (msg.what == 2) {
-                val title = msg.data.getString("TITLE")?:"不足为道"
-                val msg = msg.data.getString("MSG")?:"都没带人，咋整@@"
-                DetailDialog.Builder(activity!!).setTitle(title).setMsg(msg).build().show()
             }
         }
     }
@@ -147,10 +145,9 @@ class CardFragment : Fragment() {
                         titile ="成绩感人！"
                     }
                     val message = Message.obtain()
-                    message.what = 2
                     message.data.putString("TITLE", titile)
                     message.data.putString("MSG", msg)
-                    handler.sendMessage(message)
+                    dialogHandler.sendMessage(message)
                 }
             }
             return viewHolder
