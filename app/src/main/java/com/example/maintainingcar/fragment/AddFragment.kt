@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.DatePicker
+import android.widget.RadioGroup
 import android.widget.TimePicker
 import androidx.fragment.app.Fragment
 import com.example.maintainingcar.CarApplication
@@ -57,6 +58,7 @@ class AddFragment : Fragment(), DatePickerDialog.OnDateSetListener , TimePickerD
         sp_type.onItemSelectedListener = TypeItemSelectListener()
         sp_ex_type.onItemSelectedListener = ExTypeItemSelectListener()
         sp_in_type.onItemSelectedListener = InTypeItemSelectListener()
+        in_rg_view.setOnCheckedChangeListener(InSFCMoneyTypeChangeListener())
 
         thread {
             val list = carDao.loadAllInfo()
@@ -184,9 +186,29 @@ class AddFragment : Fragment(), DatePickerDialog.OnDateSetListener , TimePickerD
             Log.d(addTag, "In select position is $position")
             inType = position
             if (inType == 1) {
-                etIn.setText("30")
+                in_rg_view.visibility = View.VISIBLE
+                in_rg_view.check(R.id.in_30)
+                if (in_rg_view.checkedRadioButtonId == R.id.in_30) {
+                    etIn.setText("30")
+                }
+            } else {
+                etIn.setText("")
+                in_rg_view.visibility = View.GONE
             }
         }
+    }
+
+    inner class InSFCMoneyTypeChangeListener:RadioGroup.OnCheckedChangeListener{
+        override fun onCheckedChanged(group: RadioGroup?, checkedId: Int) {
+            Log.d(addTag, "checkId = $checkedId")
+            when(checkedId) {
+                R.id.in_15 -> etIn.setText("15")
+                R.id.in_30 -> etIn.setText("30")
+                R.id.in_45 -> etIn.setText("45")
+                R.id.in_60 -> etIn.setText("60")
+            }
+        }
+
     }
 }
 
